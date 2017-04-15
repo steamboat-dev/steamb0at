@@ -1,0 +1,19 @@
+{
+  "name": "steamboat",
+  "version": "1.0.0",
+  "description": "A rowboat-like moderation bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com//dynasticdevelop/steamboat"
+  },
+  "author": "nullpixel, mstrodl, jacc",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.0.0",
+    "mongoose": "^4.9.4"
+  }
+}
