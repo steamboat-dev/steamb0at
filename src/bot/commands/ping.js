@@ -10,7 +10,7 @@ module.exports = {
         {
             trigger: ["ping"],
             call: ping,
-            description: ":100: Bestest command for test",
+            description: "Check the bot's heatbeat and latency.",
             category: "pongy",
             usage: "ping",
             permissions: 0
