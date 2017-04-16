@@ -31,8 +31,8 @@ if (process.env.MONGOSERVER) {
 let initial = new Date().getTime()
 
 commands.reloadCommands(function (cmd, done) {
-    console.log("CALL")
-    console.log("Loaded " + cmd.name + " in " + String(new Date().getTime() - cmd.time) + "ms")
+    logger.log("CALL")
+    logger.log("Loaded " + cmd.name + " in " + String(new Date().getTime() - cmd.time) + "ms")
     if (done) {
         logger.log("Loaded " + done.length + " files in " + String(new Date().getTime() - initial) + "ms")
     }
@@ -58,7 +58,7 @@ bot.on("message", message => {
             bot, // If we don't have a wrapper for a particular function
             commands, // For calling commands internally
             schemas, // Database access
-            triggermessage: message, // Message is taken because it's how I used to do it in d.io ;D
+            msg: message, // Message is taken because it's how I used to do it in d.io ;D
             // Most of these are just here for short-hand
             message: message.content, // Message content
             channel: message.channel, // Channel it runs in

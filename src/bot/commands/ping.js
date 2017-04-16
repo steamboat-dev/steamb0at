@@ -1,5 +1,8 @@
 function ping(data) {
-    data.say("I AM A STEAMBOT TOOT TOOT PLS NO BAN ME KTHX!!!1!!!!!!! Also, Pong!").catch(data.err).then(data.complete())
+    data.msg.channel.send(":ship: Heartbeat: `" + data.bot.ping + "ms` | :trumpet: Latency: `*Getting latency*`").then(msg => {
+        msg.edit(msg.content.replace("*Getting latency*", Math.floor(new Date(msg.createdTimestamp).valueOf() - new Date(data.msg.createdTimestamp).valueOf()) + "ms"))
+            .catch(data.err).then(data.complete)
+    }).catch(data.err)
 }
 
 module.exports = {
@@ -10,7 +13,7 @@ module.exports = {
             description: ":100: Bestest command for test",
             category: "pongy",
             usage: "ping",
-            permissions: 8
+            permissions: 0
         }
     ]
 }
