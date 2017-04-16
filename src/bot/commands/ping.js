@@ -11,7 +11,7 @@ module.exports = {
             trigger: ["ping"],
             call: ping,
             description: "Check the bot's heatbeat and latency.",
-            category: "pongy",
+            category: "basic",
             usage: "ping",
             permissions: 0
         }
