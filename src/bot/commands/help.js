@@ -15,12 +15,7 @@ function generateAllHelp(commands) {
     return helpText
 }
 
-function generateHelp(command) {
-    return `    ${command.trigger.join(" or ")}: ${command.description}`
-}
-
 function help(data) {
-    console.log("asdf")
     data.embed({
         title: "My commands are:",
         description: generateAllHelp(data.commands.commands)
