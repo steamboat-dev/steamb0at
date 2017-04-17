@@ -30,7 +30,8 @@ function callCommand(command, data, commandEnd, sudo) {
     }
 }
 
-function checkPermissions(permissionBit, data) {
+function checkPermissions() {
+    // pass data and permission bit once added, eslint doesn't like it being unused.
     return true // data.triggermessage.member.hasPermissions(permissionBit)
 }
 

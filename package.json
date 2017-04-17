@@ -4,7 +4,7 @@
   "description": "A rowboat-like moderation bot",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/.bin/eslint src/"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "dependencies": {
     "discord.js": "^11.0.0",
     "mongoose": "^4.9.4"
+  },
+  "devDependencies": {
+    "eslint": "^4.0.0-alpha.0"
   }
 }
