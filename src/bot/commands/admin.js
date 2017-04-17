@@ -29,16 +29,14 @@ function mute(data) {
 
     if (!role2) {
         return data.msg.guild.createRole().then(role => {
-            role.setPosition(data.msg.guild.member(data.bot.user).highestRole.position - 1).then(role => {
-                role.setName("Muted").then(role => {
-                    role.setColor("#ff0000").then(role => {
-                        data.msg.channel.guild.channels.forEach(function (chan) {
-                            chan.overwritePermissions(role, {
-                                SEND_MESSAGES: false
-                            }).catch(data.err)
-                        })
-                        trueMute(data, mem, role)
-                    }).catch(data.err)
+            role.setName("Muted").then(role => {
+                role.setColor("#ff0000").then(role => {
+                    data.msg.channel.guild.channels.forEach(function (chan) {
+                        chan.overwritePermissions(role, {
+                            SEND_MESSAGES: false
+                        }).catch(data.err)
+                    })
+                    trueMute(data, mem, role)
                 }).catch(data.err)
             }).catch(data.err)
         }).catch(data.err)
@@ -47,8 +45,10 @@ function mute(data) {
 }
 
 function trueMute(data, mem, role) {
-    mem.addRole(role).then(() => {
-        data.say(`Muted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
+    role.setPosition(data.msg.guild.member(data.bot.user).highestRole.position - 1).then(role => {
+        mem.addRole(role).then(() => {
+            data.say(`Muted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
+        }).catch(data.err)
     }).catch(data.err)
 }
 
