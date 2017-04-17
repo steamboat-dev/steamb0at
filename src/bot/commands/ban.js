@@ -15,7 +15,7 @@ function kick(data) {
     if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let reason = data.args.slice(1).join(" ").replace(mem, "")
     if (!data.args[1]) return data.msg.channel.send("Required usage of `reason` is required.").then(data.complete).catch(data.err)
-    mem.kick(7).catch(data.err).then(function () {
+    mem.kick().catch(data.err).then(function () {
         data.msg.channel.sendMessage(`:boot: User \`${mem.user.username}#${mem.user.discriminator}\` was kicked for the following reason: \`${reason}\``).catch(data.err).then(data.complete)
     })
 }
