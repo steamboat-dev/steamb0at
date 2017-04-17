@@ -67,6 +67,7 @@ bot.on("message", message => {
             channel: message.channel, // Channel it runs in
             author: message.author, // Author of message
             args: args, // Parts of message without trigger
+            embed: e => {return message.channel.sendEmbed(e)}, // Short-hannd for sending embeds
             say: m => {return message.channel.sendMessage(m)} // Short-hand for sending messages
         }
 
