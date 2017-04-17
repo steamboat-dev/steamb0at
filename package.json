@@ -4,7 +4,7 @@
   "description": "A rowboat-like moderation bot",
   "main": "app.js",
   "scripts": {
-    "test": "node_modules/eslint src/"
+    "test": "node_modules/.bin/eslint src/"
   },
   "repository": {
     "type": "git",
