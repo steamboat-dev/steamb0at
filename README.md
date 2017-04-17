@@ -1,6 +1,7 @@
 # steamb0at
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/steamboat-dev/steamb0at.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/steamboat-dev/steamb0at.svg)](https://greenkeeper.io/) [![Build Status](https://travis-ci.org/steamboat-dev/steamb0at.svg?branch=master)](https://travis-ci.org/steamboat-dev/steamb0at)
+
 A dope mod bot for Discord.
 
 # Getting Started
