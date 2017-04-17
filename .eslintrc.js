@@ -161,7 +161,6 @@ module.exports = {
         "no-negated-in-lhs": "error",
         "no-nested-ternary": "error",
         "no-new": "error",
-        "no-new-func": "error",
         "no-new-object": "error",
         "no-new-require": "error",
         "no-new-wrappers": "error",
