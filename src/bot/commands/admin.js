@@ -4,7 +4,7 @@ function ban(data) {
     if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let reason = data.args.slice(1).join(" ").replace(mem, "")
     if (!data.args[1]) return data.msg.channel.send("Required usage of `reason` is required.").then(data.complete).catch(data.err)
-    mem.ban(7).then(function () {
+    mem.ban(7).catch(data.err).then(function () {
         data.msg.channel.sendMessage(`:hammer: User \`${mem.user.username}#${mem.user.discriminator}\` was banned for the following reason: \`${reason}\``).catch(data.err).then(data.complete)
     })
 }
