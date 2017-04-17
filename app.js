@@ -47,10 +47,13 @@ bot.on("message", message => {
     let begin = new Date().getTime()
     logger.log(`[${message.author.username}]: ${message.content}`)
     if(message.author.id == bot.user.id) return // Skip messages from ourself
-    commands.find(message, commands, function(command) {
+    commands.find(message, commands, function(command, index) {
         if(!command) return
 
         logger.log("Executing command " + command.trigger[0] + "…")
+
+        let args = message.content.split(" ")
+        args.splice(index, 1)
 
         if(!command.disableTyping && command) message.channel.startTyping(10 * 1000) // Command execution shouldn't take longer than 10 seconds
 
@@ -63,6 +66,7 @@ bot.on("message", message => {
             message: message.content, // Message content
             channel: message.channel, // Channel it runs in
             author: message.author, // Author of message
+            args: args, // Parts of message without trigger
             say: m => {return message.channel.sendMessage(m)} // Short-hand for sending messages
         }
 

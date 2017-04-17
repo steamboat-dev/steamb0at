@@ -10,7 +10,7 @@ module.exports = function (message, commands, done) {
                 let trigger = commands.commands[itm].trigger[trig]
                 if (parts.includes(prefixes[pref] + trigger)) {
                     logger.log("Found command: " + trigger + "!")
-                    return done(commands.commands[itm])
+                    return done(commands.commands[itm], parts.indexOf(prefixes[pref] + trigger))
                 }
             }
         }
