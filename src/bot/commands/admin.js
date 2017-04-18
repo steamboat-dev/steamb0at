@@ -4,9 +4,19 @@ function ban(data) {
     if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let reason = data.args.slice(1).join(" ").replace(mem, "")
     if (!data.args[1]) return data.msg.channel.send("Required usage of `reason` is required.").then(data.complete).catch(data.err)
-    mem.ban(7).catch(data.err).then(function () {
-        data.msg.channel.sendMessage(`:hammer: User \`${mem.user.username}#${mem.user.discriminator}\` was banned for the following reason: \`${reason}\``).catch(data.err).then(data.complete)
-    })
+    mem.ban(7).then(function () {
+        data.msg.channel.sendMessage(`:hammer: User \`${mem.user.username}#${mem.user.discriminator}\` was banned for the following reason: \`${reason}\``).then(data.complete).catch(data.err)
+        data.helpers.modLog("banned " + mem.user.username + "#" + mem.user.discriminator + " for " + reason, data)
+        data.db.guild.infractions.push(new data.schemas.Infractions({
+            moderatorID: data.msg.author.user.id,
+            targetID: mem.user.id,
+            type: "ban",
+            reason: reason || "No reason given",
+            time: new Date()
+        }))
+
+        data.db.guild.save()
+    }).catch(data.err)
 }
 
 function kick(data) {
@@ -15,9 +25,20 @@ function kick(data) {
     if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let reason = data.args.slice(1).join(" ").replace(mem, "")
     if (!data.args[1]) return data.msg.channel.send("Required usage of `reason` is required.").then(data.complete).catch(data.err)
-    mem.kick().catch(data.err).then(function () {
-        data.msg.channel.sendMessage(`:boot: User \`${mem.user.username}#${mem.user.discriminator}\` was kicked for the following reason: \`${reason}\``).catch(data.err).then(data.complete)
-    })
+    mem.kick().then(function () {
+        data.msg.channel.sendMessage(`:boot: User \`${mem.user.username}#${mem.user.discriminator}\` was kicked for the following reason: \`${reason}\``).then(data.complete).catch(data.err)
+        data.helpers.modLog("kicked " + mem.user.username + "#" + mem.user.discriminator + " for " + reason, data)
+        data.db.guild.infractions.push({
+            moderatorID: data.author.id,
+            targetID: mem.user.id,
+            type: "kick",
+            reason: reason || "No reason given",
+            time: new Date()
+        })
+        data.guild.save(function (err) {
+            if(err) console.log("ERR", err)
+        })
+    }).catch(data.err)
 }
 
 function mute(data) {
@@ -48,6 +69,7 @@ function trueMute(data, mem, role) {
     role.setPosition(data.msg.guild.member(data.bot.user).highestRole.position - 1).then(role => {
         mem.addRole(role).then(() => {
             data.say(`Muted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
+            data.helpers.modLog("muted " + mem.user, data)
         }).catch(data.err)
     }).catch(data.err)
 }
@@ -55,13 +77,14 @@ function trueMute(data, mem, role) {
 function unmute(data) {
     if (data.msg.mentions.users.size === 0) return data.msg.channel.send("Required usage of `user` is required.").then(data.complete).catch(data.err)
     let mem = data.msg.guild.member(data.msg.mentions.users.first())
-    if (!mem) return data.msg.channel.send("Please include a valid member!").catch(data.err).then(data.complete)
+    if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let role = data.msg.guild.roles.find("name", "Muted")
-    if (!role || !mem.roles.get(role.id)) return data.say("That user isn't muted!").catch(data.err).then(data.complete)
+    if (!role || !mem.roles.get(role.id)) return data.say("That user isn't muted!").then(data.complete).catch(data.err)
 
-    mem.removeRole(role).catch(data.err).then(() => {
-        data.say(`Unmuted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).catch(data.err).then(data.complete)
-    })
+    mem.removeRole(role).then(() => {
+        data.say(`Unmuted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
+        data.helpers.modLog("unmuted " + mem.user, data)
+    }).catch(data.err)
 }
 
 module.exports = {
