@@ -10,3 +10,7 @@ A dope mod bot for Discord.
 * `git clone --recursive https://github.com/steamboat-dev/steamb0at.git`: **RECURSIVE IS NEEDED** as we use submodules.
 * `npm i`
 * :tada:
+
+# Updating 
+
+Since we use submodules, it's a good idea to update those when pulling, too. To update, run `git submodule update --recursive --remote`
