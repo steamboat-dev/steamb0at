@@ -18,10 +18,11 @@ function generateAllHelp(commands) {
 function help(data) {
     data.embed({
         title: "My commands are:",
-        description: generateAllHelp(data.commands.commands)
+        description: generateAllHelp(data.commands.commands),
+        color: Math.random() * 0xFFFFFF << 0
     }, {
         split: true
-    }).catch(data.err).then(data.complete)
+    }).then(data.complete).catch(data.err)
 }
 
 module.exports = {

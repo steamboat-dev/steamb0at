@@ -1,7 +1,7 @@
 function ping(data) {
-    data.msg.channel.send(":ship: Heartbeat: `" + data.bot.ping + "ms` | :trumpet: Latency: `*Getting latency*`").then(msg => {
-        msg.edit(msg.content.replace("*Getting latency*", Math.floor(new Date(msg.createdTimestamp).valueOf() - new Date(data.msg.createdTimestamp).valueOf()) + "ms"))
-            .catch(data.err).then(data.complete)
+    data.msg.channel.send(":ship: Heartbeat: `" + Math.round(data.bot.ping) + "ms` | :trumpet: Latency: `*Getting latency*`").then(msg => {
+        msg.edit(msg.content.replace("*Getting latency*", Math.round(new Date(msg.createdTimestamp).valueOf() - new Date(data.msg.createdTimestamp).valueOf()) + "ms"))
+            .then(data.complete).catch(data.err)
     }).catch(data.err)
 }
 
