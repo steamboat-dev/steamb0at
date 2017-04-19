@@ -36,7 +36,7 @@ function kick(data) {
             time: new Date()
         })
         data.guild.save(function (err) {
-            if(err) console.log("ERR", err)
+            if (err) data.logger.log("Error saving: ", err)
         })
     }).catch(data.err)
 }
@@ -70,6 +70,16 @@ function trueMute(data, mem, role) {
         mem.addRole(role).then(() => {
             data.say(`Muted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
             data.helpers.modLog("muted " + mem.user, data)
+            data.db.guild.infractions.push({
+                moderatorID: data.author.id,
+                targetID: mem.user.id,
+                type: "mute",
+                reason: reason || "No reason given",
+                time: new Date()
+            })
+            data.guild.save(function (err) {
+                if (err) data.logger.log("Error saving: ", err)
+            })
         }).catch(data.err)
     }).catch(data.err)
 }

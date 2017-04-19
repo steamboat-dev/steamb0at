@@ -1,8 +1,11 @@
-let Discord,
-    bot,
-    mongoose,
+let bot,
     commands,
+    config,
+    Discord,
+    DiscordToken,
     logger,
+    MongoURL,
+    mongoose,
     schemas
 
 try {
@@ -10,30 +13,41 @@ try {
 
     commands = require("./src/bot/commandsystem/index")
     helpers = require("./src/bot/helpers")
+    let {env} = process
+    if (env.DISCORDTOKEN) {
+        DiscordToken = env.DISCORDTOKEN
+    } else {
+        DiscordToken = require("./config").tokens.discord
+    }
+    if (env.MONGOSERVER) {
+        MongoURL = env.MONGOSERVER
+    } else {
+        MongoURL = require("./config").tokens.mongodb
+    }
     logger = console // require("./src/bot/logger")
 } catch (e) {
     e.message = "Error loading modules: " + e.message + "! Did you run `npm i`?"
     throw e
 }
-bot = new Discord.Client()
-bot.login(process.env.DISCORDTOKEN)
 
-if (process.env.MONGOSERVER) {
-    try {
-        logger.log("Initializing MongoDB")
-        mongoose = require("mongoose")
-        mongoose.connect(process.env.MONGOSERVER)
-        schemas = {
-            Guild: require("./src/shared/schema/guild"),
-            Infractions: require("./src/shared/schema/infractions"),
-            Settings: require("./src/shared/schema/settings")
-        }
-    } catch (e) {
-        e.message = "Error loading modules: " + e.message + "! Did you run `npm i`?"
-        throw e
+bot = new Discord.Client()
+bot.login(DiscordToken).catch(err => {
+    err.message = "Error logging into Discord: " + err.message + " are you sure your token in config.js is valid?"
+    throw err
+})
+
+try {
+    logger.log("Initializing MongoDB")
+    mongoose = require("mongoose")
+    mongoose.connect(MongoURL)
+    schemas = {
+        Guild: require("./src/shared/schema/guild"),
+        Infractions: require("./src/shared/schema/infractions"),
+        Settings: require("./src/shared/schema/settings")
     }
-} else {
-    logger.log("Skipping initialization of MongoDB")
+} catch (e) {
+    e.message = "Error initializing MongoDB: " + e.message + "! Did you update your submodules?"
+    throw e
 }
 
 let initial = new Date().getTime()
@@ -73,8 +87,6 @@ bot.on("channelCreate", channel => {
 bot.on("userUpdate", (olduser, newuser) => {
     if (olduser.nickname != newuser.nickname) {
         helpers.modLog(`${newuser}'s nickname was changed from ${olduser.nickname} to ${newuser.nickname}`, null, channel.guild, true)
-    } else {
-        console.log("NO")
     }
 })
 
@@ -133,16 +145,16 @@ bot.on("message", message => {
         if (!command.disableTyping && command) message.channel.startTyping(10 * 1000) // Command execution shouldn't take longer than 10 seconds
         schemas.Guild.findOne({ guildID: message.guild.id }, (err, guilddb) => {
             if (err || !guilddb) {
-                console.log("EE", err)
+                logger.log("EE", err)
                 guilddb = new schemas.Guild({
                     guildID: message.guild.id,
                     settings: [],
                     infractions: []
                 })
-                guilddb.save().then(function() {
-                    console.log("save")
-                }, function(e) {
-                    console.log("ERRSAVEHERE", e)
+                guilddb.save().then(function () {
+                    logger.log("save")
+                }, function (e) {
+                    logger.log("ERRSAVEHERE", e)
                 })
             }
             let data = {

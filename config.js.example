@@ -1,0 +1,6 @@
+module.exports = { 
+    tokens: { 
+        discord: "", // Add your token here 
+        mongodb: "mongodb://localhost:27017/steamboat" 
+    } 
+}

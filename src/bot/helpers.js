@@ -1,20 +1,43 @@
-function modLog(msg, data, guild, raw) {
-    if(!guild) guild = data.msg.guild
+schemas = {
+    Guild: require("../shared/schema/guild"),
+    Infractions: require("../shared/schema/infractions"),
+    Settings: require("../shared/schema/settings")
+}
 
-    let chan = guild.channels.find("name", "mod-logs")
-    if(chan) {
-        sendModLogItm(msg, chan, data, raw)
+function modLog(msg, data, guild, raw) {
+    if (!guild) guild = data.msg.guild
+    if (!data || !data.db) {
+        schemas.Guild.findOne({ guildID: guild.id }, (err, guilddb) => {
+            if (err || !guilddb) {
+                logger.log("EE", err)
+                guilddb = new schemas.Guild({
+                    guildID: guild.id,
+                    settings: [],
+                    infractions: []
+                })
+                guilddb.save().then(() => {
+                    // Do nothing
+                }, function (e) {
+                    logger.log("Save error: ", e)
+                })
+            } else {
+                console.log(guilddb.settings[0])
+                if(!guilddb.settings[0]) return false
+                console.log("Safe")
+                let chan = guild.channels.get(guilddb.settings[0].modLogID)
+                if (!chan) return false
+                sendModLogItm(msg, chan, data, raw)
+            }
+        })
     } else {
-        data.msg.guild.createChannel("mod-logs", "text").then(chan => {
-            chan.sendMessage(`Channel ${chan} created by ${data.bot.user}`, chan, data).then(() => {
-                sendModLogItm(msg, chan, data)
-            }).catch(data.err)
-        }).catch(data.err)
+        let chan = guild.channels.get(data.db.guild.settings.modLogId)
+        if (!chan) return false
+        sendModLogItm(msg, chan, data, raw)
     }
 }
 
 function sendModLogItm(msg, chan, data, raw) {
-    if(raw) {
+    if (raw) {
         chan.sendEmbed({
             title: "Moderator action",
             description: msg,
