@@ -2,5 +2,6 @@ module.exports = {
     tokens: { 
         discord: "", // Add your token here 
         mongodb: "mongodb://localhost:27017/steamboat" 
-    } 
+    },
+    owners: ["153244623219851266", "196769986071625728", "140527820500762624"] // For owner-only commands. Replace this with your team's user IDs
 }

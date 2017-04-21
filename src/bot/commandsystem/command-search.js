@@ -8,9 +8,9 @@ module.exports = function (message, commands, done) {
             if (typeof commands.commands[itm].trigger != "object") commands.commands[itm].trigger = [commands.commands[itm].trigger]
             for (let trig in commands.commands[itm].trigger) {
                 let trigger = commands.commands[itm].trigger[trig]
-                if (parts.includes(prefixes[pref] + trigger)) {
+                if (parts[0] == prefixes[pref] + trigger) {
                     logger.log("Found command: " + trigger + "!")
-                    return done(commands.commands[itm], parts.indexOf(prefixes[pref] + trigger))
+                    return done(commands.commands[itm], 0)
                 }
             }
         }

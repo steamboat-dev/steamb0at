@@ -4,26 +4,25 @@ schemas = {
     Settings: require("../shared/schema/settings")
 }
 
+let logger = console
+
 function modLog(msg, data, guild, raw) {
-    if (!guild) guild = data.msg.guild
+    if (!guild) {
+        let tmpguild = data.msg.guild
+        guild = tmpguild
+    }
     if (!data || !data.db) {
-        schemas.Guild.findOne({ guildID: guild.id }, (err, guilddb) => {
+        schemas.Guild.findOne({guildID: guild.id}, (err, guilddb) => {
             if (err || !guilddb) {
                 logger.log("EE", err)
-                guilddb = new schemas.Guild({
+                let guilddb = new schemas.Guild({
                     guildID: guild.id,
                     settings: [],
                     infractions: []
                 })
-                guilddb.save().then(() => {
-                    // Do nothing
-                }, function (e) {
-                    logger.log("Save error: ", e)
-                })
+                guilddb.save()
             } else {
-                console.log(guilddb.settings[0])
                 if(!guilddb.settings[0]) return false
-                console.log("Safe")
                 let chan = guild.channels.get(guilddb.settings[0].modLogID)
                 if (!chan) return false
                 sendModLogItm(msg, chan, data, raw)

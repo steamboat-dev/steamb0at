@@ -12,7 +12,8 @@ module.exports = {
             description: "Evaluates javascript",
             category: "owner",
             usage: "eval <code>",
-            permissions: 0
+            permissions: 0,
+            owner: true
         }
     ]
 }

@@ -65,7 +65,7 @@ bot.on("ready", () => {
 })
 
 bot.on("guildMemberAdd", user => {
-    helpers.modLog(`User ${user} (${user.username}#${user.discriminator}) joined the server`, null, user.guild, true)
+    helpers.modLog(`User ${user} (${user.user.username}#${user.user.discriminator}) joined the server`, null, user.guild, true)
 })
 
 bot.on("guildMemberRemove", user => {
@@ -84,10 +84,29 @@ bot.on("channelCreate", channel => {
     helpers.modLog(`Channel ${channel} (${channel.name}) created`, null, channel.guild, true)
 })
 
-bot.on("userUpdate", (olduser, newuser) => {
+bot.on("debug", m => {
+    logger.log("[DEBUG] " + m)
+})
+bot.on("error", m => {
+    logger.log("[ERROR] " + m)
+})
+bot.on("warn", m => {
+    logger.log("[WARN] " + m)
+})
+
+bot.on("guildMemberUpdate", (olduser, newuser) => {
     if (olduser.nickname != newuser.nickname) {
-        helpers.modLog(`${newuser}'s nickname was changed from ${olduser.nickname} to ${newuser.nickname}`, null, channel.guild, true)
+        helpers.modLog(`${newuser}'s nickname was changed from ${olduser.nickname || olduser.username} to ${newuser.nickname || newuser.username}`, null, newuser.guild, true)
     }
+})
+
+bot.on("guildCreate", guild => {
+    logger.log("[INFO] Added to guild: " + guild.name + " ID: " + guild.id + " with " + guild.members.size + " users!")
+    guild.channels.first().sendMessage("Hello! I'm " + bot.user.username + "! I'm a simple moderation bot that does what *YOU* want! The server owner can configure me at this servers personal link: https://steamb0at.party/" + guild.id + "/admin\nThe server owner can also choose to add trusted users and/or roles to be allowed to edit me as well!\nThanks for joining our little family! - The Steamboat devs")
+})
+
+bot.on("guildDelete", guild => {
+    logger.log("[INFO] Removed from guild: " + guild.name + " ID: " + guild.id + " with " + guild.members.size + " users!")
 })
 
 bot.on("channelDelete", channel => {
@@ -104,25 +123,25 @@ bot.on("channelUpdate", (oldchannel, newchannel) => {
 
 bot.on("messageDelete", message => {
     let data = {
-        bot, // If we don't have a wrapper for a particular function
-        msg: message, // Message is taken because it's how I used to do it in d.io ;D
-        // Most of these are just here for short-hand
-        message: message.content, // Message content
-        channel: message.channel, // Channel it runs in
-        author: message.author // Author of message
+        bot, // if we don't have a wrapper for a particular function
+        msg: message, // message is taken because it's how I used to do it in d.io ;D
+        // most of these are just here for short-hand
+        message: message.content, // message content
+        channel: message.channel, // channel it runs in
+        author: message.author // author of message
     }
     helpers.modLog("deleted message:\n" + message.content, data)
 })
 
 bot.on("messageUpdate", (oldmessage, newmessage) => {
-    if (newmessage.author == bot.user) return // Ignore our ping message
+    if (newmessage.author == bot.user) return // ignore our ping message
     let data = {
-        bot, // If we don't have a wrapper for a particular functio
-        msg: newmessage, // Message is taken because it's how I used to do it in d.io ;D
-        // Most of these are just here for short-hand
-        message: newmessage.content, // Message content
-        channel: newmessage.channel, // Channel it runs in
-        author: newmessage.author // Author of message
+        bot, // if we don't have a wrapper for a particular functio
+        msg: newmessage, // message is taken because it's how I used to do it in d.io ;D
+        // most of these are just here for short-hand
+        message: newmessage.content, // message content
+        channel: newmessage.channel, // channel it runs in
+        author: newmessage.author // author of message
     }
     if (oldmessage.content != newmessage.content) {
         helpers.modLog(`edited message:\n ${oldmessage.content}\n\n to ${newmessage.content}\n\n in ${newmessage.channel} (${newmessage.channel.name})`, data)
@@ -133,7 +152,7 @@ bot.on("messageUpdate", (oldmessage, newmessage) => {
 bot.on("message", message => {
     let begin = new Date().getTime()
     logger.log(`[${message.author.username}]: ${message.content}`)
-    if (message.author.id == bot.user.id) return // Skip messages from ourself
+    if (message.author.id == bot.user.id) return // skip messages from ourself
     commands.find(message, commands, function (command, index) {
         if (!command) return
 
@@ -142,8 +161,8 @@ bot.on("message", message => {
         let args = message.content.split(" ")
         args.splice(index, 1)
 
-        if (!command.disableTyping && command) message.channel.startTyping(10 * 1000) // Command execution shouldn't take longer than 10 seconds
-        schemas.Guild.findOne({ guildID: message.guild.id }, (err, guilddb) => {
+        if (!command.disableTyping && command) message.channel.startTyping(10 * 1000) // command execution shouldn't take longer than 10 seconds
+        schemas.Guild.findOne({guildID: message.guild.id}, (err, guilddb) => {
             if (err || !guilddb) {
                 logger.log("EE", err)
                 guilddb = new schemas.Guild({
@@ -158,25 +177,25 @@ bot.on("message", message => {
                 })
             }
             let data = {
-                bot, // If we don't have a wrapper for a particular function
-                commands, // For calling commands internally
-                schemas, // Database access
-                msg: message, // Message is taken because it's how I used to do it in d.io ;D
+                bot, // if we don't have a wrapper for a particular function
+                commands, // for calling commands internally
+                schemas, // database access
+                msg: message, // message is taken because it's how I used to do it in d.io ;D
                 db: {
                     guild: guilddb
                 },
-                // Most of these are just here for short-hand
-                message: message.content, // Message content
-                channel: message.channel, // Channel it runs in
-                author: message.author, // Author of message
-                args: args, // Parts of message without trigger
-                helpers: helpers,
-                embed: e => { return message.channel.sendEmbed(e) }, // Short-hannd for sending embeds
-                say: m => { return message.channel.sendMessage(m) } // Short-hand for sending messages
+                // most of these are just here for short-hand
+                message: message.content, // message content
+                channel: message.channel, // channel it runs in
+                author: message.author, // author of message
+                args, // parts of message without trigger
+                helpers,
+                embed: e => message.channel.sendEmbed(e), // short-hannd for sending embeds
+                say: m => message.channel.sendMessage(m) // short-hand for sending messages
             }
 
             commands.call(command, data, function () {
-                message.channel.stopTyping(true) // We're no longer "typing" when the command finishes executing
+                message.channel.stopTyping(true) // we're no longer "typing" when the command finishes executing
                 logger.log("Executed command " + command.trigger[0] + " in " + String(new Date().getTime() - begin) + "ms!")
             })
         })

@@ -1,6 +1,14 @@
-function callCommand(command, data, commandEnd, sudo) {
+let config = require("../../../config")
 
-    if(!sudo && command.permissions != undefined && command.permissions != 0 && !checkPermissions(command.permissions, data)) {
+function callCommand(command, data, commandEnd, sudo) {
+    if(!sudo && !config.owners.includes(data.author.id) && command.owner) {
+        data.say("Nice try! You don't have permission to run that command! It's marked as owner-only!")
+        return commandEnd({
+            code: errors.permissionMissing
+        })
+    }
+
+    if(!sudo && command.permissions != undefined && !config.owners.includes(data.author.id) && !checkPermissions(command.permissions, data)) {
         data.say("Nice try! You don't have permission to run that command!")
         return commandEnd({
             code: errors.permissionMissing
@@ -30,9 +38,9 @@ function callCommand(command, data, commandEnd, sudo) {
     }
 }
 
-function checkPermissions() {
-    // pass data and permission bit once added, eslint doesn't like it being unused.
-    return true // data.triggermessage.member.hasPermissions(permissionBit)
+function checkPermissions(permbit, data) {
+    if(permbit == 0) return true // ignore no perm commands
+    return data.msg.guild.member(data.msg.author).permissions.hasPermission(permbit)
 }
 
 module.exports = {
