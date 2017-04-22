@@ -43,13 +43,13 @@ function kick(data) {
     }).catch(data.err)
 }
 
-function shittyTable(data) {
+function userInfo(data) {
     if(data.args.length != 1) return data.say(`Too ${data.args.length > 1 ? "many" : "few"} arguments!`).then(data.complete).catch(data.err)
     let targetID = data.args[0]
     if (data.msg.mentions.users.size !== 0) {
         targetID = data.msg.mentions.users.first().id
     }
-    let mem = data.msg.guild.member(data.msg.guild.members.get(targetID))
+    let mem = data.msg.guild.members.get(targetID.toString())
     if (!mem) return data.msg.channel.send("Please include a valid member!").then(data.complete).catch(data.err)
     let infractions = {}
     let resptext = ""
@@ -59,30 +59,21 @@ function shittyTable(data) {
     if(infractions.length <= 0) {
         return data.say("This user has no infractions!").then(data.complete).catch(data.err)
     }
-    let table = new AsciiTable()
-    table.setHeading("ID", "Type", "User", "Moderator", "From", "Until", "Active", "Reason")
     for(let inf in infractions) {
         let frac = infractions[inf]
-        // table.addRow(Number(inf) + 1,
-        // frac.type,
-        // mem.username + "#" + mem.discriminator,
-        // data.bot.users.get(frac.moderatorID).username + "#" + data.bot.users.get(frac.moderatorID).discriminator,
-        // frac.time.toISOString().replace("T", " ").substr(0, 19),
-        // typeof frac.until == Date ? frac.until.toISOString().replace("T", " ").substr(0, 19) : "N/A",
-        // frac.until >= new Date().getTime() ? "Yes" : "No",
-        // frac.reason)
         resptext += `\n\
 **Case Number:** ${Number(inf) + 1}\n\
 **Type:** ${frac.type}\n\
 **From:** ${frac.time.toISOString().replace("T", " ").substr(0, 19)}\n\
 **Until:** ${typeof frac.until == Date ? frac.until.toISOString().replace("T", " ").substr(0, 19) : "N/A"}\n\
-**Moderator:** ${data.bot.users.get(frac.moderatorID).username}#${data.bot.users.get(frac.moderatorID).discriminator}\n`
+**Moderator:** <@${frac.moderatorID}>\n`
     }
+    console.log("Thus far")
     data.embed({
         title: `Infractions for user: ${mem.user.username}#${mem.user.discriminator}`,
         description: resptext,
         color: Math.random() * 0xFFFFFF << 0
-    }, table.toString(), {split: true}).then(data.complete).catch(data.err)
+    }, "", {split: true}).then(data.complete).catch(data.err)
 }
 
 function mute(data) {
@@ -151,35 +142,35 @@ module.exports = {
             description: "Bans a user",
             category: "mod",
             usage: "ban @user reason",
-            permissions: 67108864
+            permissions: 60
         }, {
             trigger: ["kick"],
             call: kick,
             description: "Kicks a user",
             category: "mod",
             usage: "kick @user reason",
-            permissions: 2
+            permissions: 40
         }, {
             trigger: ["mute"],
             call: mute,
             description: "Mutes a user",
             category: "mod",
             usage: "mute @user",
-            permissions: 268435456
+            permissions: 30
         }, {
             trigger: ["unmute"],
             call: unmute,
             description: "Unmutes a user",
             category: "mod",
             usage: "unmute @user",
-            permissions: 268435456
+            permissions: 30
         }, {
-            trigger: ["shit"],
-            call: shittyTable,
-            description: "Unmutes a user",
+            trigger: ["info"],
+            call: userInfo,
+            description: "Get info on a user",
             category: "mod",
             usage: "shit @user",
-            permissions: 268435456
+            permissions: 20
         }
     ]
 }

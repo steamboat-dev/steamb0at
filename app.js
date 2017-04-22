@@ -13,7 +13,7 @@ try {
 
     commands = require("./src/bot/commandsystem/index")
     helpers = require("./src/bot/helpers")
-    let {env} = process
+    let { env } = process
     if (env.DISCORDTOKEN) {
         DiscordToken = env.DISCORDTOKEN
     } else {
@@ -53,7 +53,6 @@ try {
 let initial = new Date().getTime()
 
 commands.reloadCommands(function (cmd, done) {
-    logger.log("CALL")
     logger.log("Loaded " + cmd.name + " in " + String(new Date().getTime() - cmd.time) + "ms")
     if (done) {
         logger.log("Loaded " + done.length + " files in " + String(new Date().getTime() - initial) + "ms")
@@ -162,19 +161,91 @@ bot.on("message", message => {
         args.splice(index, 1)
 
         if (!command.disableTyping && command) message.channel.startTyping(10 * 1000) // command execution shouldn't take longer than 10 seconds
-        schemas.Guild.findOne({guildID: message.guild.id}, (err, guilddb) => {
+        schemas.Guild.findOne({ guildID: message.guild.id }, (err, guilddb) => {
             if (err || !guilddb) {
                 logger.log("EE", err)
+                let dbroles = []
+                let cmnds = []
+                message.guild.roles.forEach(role => {
+                    dbroles.push({
+                        id: role.id,
+                        permissions: 0
+                    })
+                })
+                commands.commands.forEach(cmd => {
+                    cmnds.push({
+                        name: cmd.trigger[0],
+                        permissions: cmd.permissions || 0
+                    })
+                })
                 guilddb = new schemas.Guild({
                     guildID: message.guild.id,
                     settings: [],
-                    infractions: []
+                    infractions: [],
+                    commands: cmnds,
+                    roles: dbroles
                 })
                 guilddb.save().then(function () {
                     logger.log("save")
                 }, function (e) {
                     logger.log("ERRSAVEHERE", e)
                 })
+            } else { // if we didn't just create a guild in the database, we need to make sure Discord and the DB are synced
+                let botCommands = []
+                let dbCommands = []
+                let thecmds = {}
+
+                guilddb.commands.forEach(cmnd => {
+                    dbCommands.push(cmnd.name)
+                })
+
+                commands.commands.forEach(cmd => {
+                    botCommands.push(cmd.trigger[0])
+                    thecmds[cmd.trigger[0]] = cmd
+                })
+
+                let diff = botCommands.filter(function (el) {
+                    return dbCommands.indexOf(el) < 0;
+                });
+
+                let botRoles = []
+                let dbRoles = []
+
+                guilddb.roles.forEach(role => {
+                    dbRoles.push(role.id)
+                })
+
+                message.guild.roles.forEach(role => {
+                    botRoles.push(role.id)
+                })
+
+                let diff2 = botRoles.filter(function (el) {
+                    return dbRoles.indexOf(el) < 0;
+                });
+
+                diff.forEach(cmd => {
+                    guilddb.commands.push({
+                        name: cmd,
+                        permissions: thecmds[cmd].permissions || 0
+                    })
+                })
+
+                diff2.forEach(role => {
+                    guilddb.roles.push({
+                        id: role,
+                        permissions: 0
+                    })
+                })
+
+                if (diff.length > 0 || diff2.length > 0) {
+                    guilddb.save().then(function () {
+                        logger.log("Updated db in guild")
+                    }, err => {
+                        logger.log("ERROR: " + err)
+                    })
+                } else {
+                    console.log("No new roles detected")
+                }
             }
             let data = {
                 bot, // if we don't have a wrapper for a particular function
@@ -182,8 +253,12 @@ bot.on("message", message => {
                 schemas, // database access
                 msg: message, // message is taken because it's how I used to do it in d.io ;D
                 db: {
-                    guild: guilddb
+                    guild: guilddb,
+                    commands: guilddb.commands,
+                    roles: guilddb.roles
                 },
+                logger: console,
+                command,
                 // most of these are just here for short-hand
                 message: message.content, // message content
                 channel: message.channel, // channel it runs in

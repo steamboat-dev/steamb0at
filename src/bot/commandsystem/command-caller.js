@@ -9,7 +9,14 @@ function callCommand(command, data, commandEnd, sudo) {
     }
 
     if(!sudo && command.permissions != undefined && !config.owners.includes(data.author.id) && !checkPermissions(command.permissions, data)) {
-        data.say("Nice try! You don't have permission to run that command!")
+        data.say("Nice try! You don't have permission to run that command! hhhh")
+        return commandEnd({
+            code: errors.permissionMissing
+        })
+    }
+
+    if(!sudo && command.permissions != undefined && !config.owners.includes(data.author.id) && !checkSpecialPerms(data)) {
+        data.say("Nice try! You don't have permission to run that command! gggg")
         return commandEnd({
             code: errors.permissionMissing
         })
@@ -41,6 +48,20 @@ function callCommand(command, data, commandEnd, sudo) {
 function checkPermissions(permbit, data) {
     if(permbit == 0) return true // ignore no perm commands
     return data.msg.guild.member(data.msg.author).permissions.hasPermission(permbit)
+}
+
+function checkSpecialPerms(data) {
+    let commands = {}
+    for(let c in data.db.commands) {
+        commands[data.db.commands[c].name] = data.db.commands[c]
+    }
+    let cmd = data.db.commands ? data.db.commands[data.command.trigger[0]] : false
+    let needed = !cmd || !cmd.permissions ? data.command.permissions : data.db.commands[data.command.trigger[0]].permissions
+    if(needed == 0) return true
+    if(!data.db.roles) return false
+    return data.msg.guild.members.get(data.msg.author.id).roles.every(function(role) {
+        return data.db.roles[role.id].permissions >= needed
+    })
 }
 
 module.exports = {

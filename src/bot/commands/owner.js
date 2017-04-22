@@ -1,5 +1,5 @@
 function evalcmd(data) {
-    let e = new Function("data", "return " + data.args.join(" "))
+    let e = new Function("data", data.args.join(" "))
 
     data.say("```" + String(e(data)) + "```").then(data.complete).catch(data.err)
 }

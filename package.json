@@ -4,7 +4,8 @@
   "description": "A rowboat-like moderation bot",
   "main": "app.js",
   "scripts": {
-    "test": "node_modules/.bin/eslint src/"
+    "test": "node_modules/.bin/eslint src/",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -15,7 +16,8 @@
   "dependencies": {
     "ascii-table": "0.0.9",
     "discord.js": "github:hydrabolt/discord.js",
-    "mongoose": "^4.9.4"
+    "mongoose": "^4.9.4",
+    "vm2": "^3.4.6"
   },
   "devDependencies": {
     "eslint": "^4.0.0-alpha.0"
