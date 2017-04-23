@@ -15,7 +15,7 @@ function reload(callback) {
             let start = new Date().getTime()
             let mod = require("../commands/" + files[f].replace(/\.js/gi, ""))
             for(let cmd in mod.commands) {
-                let done = files.length >= f && mod.commands.length >= cmd ? files : false
+                let done = Number(f) + 1 >= files.length && Number(cmd) + 1 >= mod.commands.length ? files : false
                 callback({
                     name: mod.commands[cmd].trigger,
                     time: start

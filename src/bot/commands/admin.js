@@ -131,6 +131,13 @@ function unmute(data) {
     mem.removeRole(role).then(() => {
         data.say(`Unmuted ${mem.user.username}#${mem.user.discriminator}${mem.user.bot ? " (BOT)" : ""}!`).then(data.complete).catch(data.err)
         data.helpers.modLog("unmuted " + mem.user, data)
+        for(let i in data.db.guild.infractions) {
+            let inf = data.db.guild.infractions[i]
+            if(inf.targetID == mem.id && inf.type == "mute") {
+                data.db.guild.infractions[i].active = false
+            }
+        }
+        data.db.guild.save()
     }).catch(data.err)
 }
 

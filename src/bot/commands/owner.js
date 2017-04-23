@@ -1,7 +1,7 @@
 function evalcmd(data) {
-    let e = new Function("data", data.args.join(" "))
+    let e = eval(data.args.join(" "))
 
-    data.say("```" + String(e(data)) + "```").then(data.complete).catch(data.err)
+    data.say("```" + String(e) + "```").then(data.complete).catch(data.err)
 }
 
 module.exports = {
